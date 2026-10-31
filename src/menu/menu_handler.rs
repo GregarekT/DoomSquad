@@ -97,14 +97,14 @@ impl Menu {
         // Define button layouts
         let btn_start = ButtonDef {
             x: 230,
-            y: 160,
+            y: 140,
             w: 340,
             h: 50,
             text: "[1] NEW GAME".to_string(),
         };
         let btn_load = ButtonDef {
             x: 230,
-            y: 230,
+            y: 200,
             w: 340,
             h: 50,
             text: "[2] LOAD MAP".to_string(),
@@ -117,7 +117,7 @@ impl Menu {
         };
         let btn_audio = ButtonDef {
             x: 230,
-            y: 300,
+            y: 260,
             w: 340,
             h: 50,
             text: audio_text.to_string(),
@@ -125,11 +125,19 @@ impl Menu {
 
         let btn_quit = ButtonDef {
             x: 230,
-            y: 370,
+            y: 320,
             w: 340,
             h: 50,
             text: "[ESC] QUIT GAME".to_string(),
         };
+         let btn_KeyBindings = ButtonDef {
+            x: 230,
+            y: 380,
+            w: 340,
+            h: 50,
+            text: "[3] Key Bindings".to_string(),
+        };
+
 
         // Interaction processing
         if self.draw_flat_button(buffer, &btn_start, mx, my) && clicked || click1 {
@@ -157,6 +165,9 @@ impl Menu {
 
         if self.draw_flat_button(buffer, &btn_quit, mx, my) && clicked {
             return AppState::Quit;
+        }
+        if self.draw_flat_button(buffer, &btn_KeyBindings, mx, my) && clicked || click3 {
+            //Open the key bindings menu or perform related action (this is a placeholder for future implementation) via Config file 
         }
 
         // Keep looping in the menu until an action changes the state
