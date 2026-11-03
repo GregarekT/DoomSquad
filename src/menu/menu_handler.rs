@@ -342,8 +342,8 @@ impl Menu {
             SCREEN_WIDTH,
             SCREEN_HEIGHT,
             "KEY BINDINGS",
-            50,
-            6,
+            8,
+            4,
             COL_TITLE_RED,
         );
 
@@ -365,7 +365,7 @@ impl Menu {
             };
             let row = ButtonDef {
                 x: 100,
-                y: 72 + index * 18,
+                y: 72 + index * 16,
                 w: 600,
                 h: 18,
                 text: binding_text,
@@ -378,9 +378,9 @@ impl Menu {
         
         let btn_back = ButtonDef {
             x: 230,
-            y: 380,
+            y: 390,
             w: 340,
-            h: 50,
+            h: 42,
             text: "[ESC] BACK TO MENU".to_string(),
         };
 
