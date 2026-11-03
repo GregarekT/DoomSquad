@@ -6,6 +6,7 @@
 
 use font8x8::{BASIC_FONTS, UnicodeFonts};
 use minifb::{Key, KeyRepeat, MouseButton, MouseMode, Window};
+use crate::game::key_bindings::{Action, KeyBindings};
 use std::fs;
 
 use crate::audio::audio_handler::Audio;
@@ -48,12 +49,16 @@ struct ButtonDef {
 /// we only need to manually track the mouse state for edge detection (clicks).
 pub struct Menu {
     was_mouse_down: bool,
+    capture_action: Option<Action>,
+    pub key_bindings: KeyBindings,
 }
 
 impl Menu {
     pub fn new() -> Self {
         Self {
             was_mouse_down: false,
+            capture_action: None,
+            key_bindings: KeyBindings::load(),
         }
     }
 
@@ -169,8 +174,7 @@ impl Menu {
             return AppState::Quit;
         }
         if self.draw_flat_button(buffer, &btn_key_bindings, mx, my) && clicked || click4 {
-            return AppState::KeyBindings;
-            //Open the key bindings menu or perform related action (this is a placeholder for future implementation) via Config file 
+            return AppState::KeyBindings; 
         }
 
         // Keep looping in the menu until an action changes the state
@@ -318,6 +322,19 @@ impl Menu {
         buffer.fill(COL_BG_MAIN);
 
         let (mx, my, clicked) = self.get_mouse_state(window);
+        if let Some(action) = self.capture_action {
+            if let Some(key) = window.get_keys_pressed(KeyRepeat::No).into_iter().find(|key| *key != Key::Unknown)
+            {
+                self.key_bindings.set(action, key);
+                if let Err(error) = self.key_bindings.save() {
+                    eprintln!("Failed to save key bindings: {error}");
+                }
+                self.capture_action = None;
+
+            }
+        } else if window.is_key_pressed(Key::Escape, KeyRepeat::No) {
+                return AppState::StartScreen;
+        }
        
         
         Self::draw_text_centered(
@@ -330,7 +347,34 @@ impl Menu {
             COL_TITLE_RED,
         );
 
-        
+        Self::draw_text_centered(
+            buffer,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            "SELECT AN ACTION, THEN PRESS A KEY",
+            52,
+            1,
+            COL_TEXT_WHITE,
+        );
+        for (index, action) in Action::ALL.into_iter().enumerate() {
+            let is_capturing = self.capture_action == Some(action);
+            let binding_text = if is_capturing {
+                format!("{}: PRESS A KEY", action.label())
+            } else {
+                format!("{}: {:?}", action.label(), self.key_bindings.get(action))
+            };
+            let row = ButtonDef {
+                x: 100,
+                y: 72 + index * 18,
+                w: 600,
+                h: 18,
+                text: binding_text,
+            };
+
+            if self.draw_flat_button(buffer, &row, mx, my) && clicked {
+                self.capture_action = Some(action);
+            }
+        }
         
         let btn_back = ButtonDef {
             x: 230,

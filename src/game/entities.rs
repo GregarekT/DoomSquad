@@ -1,4 +1,4 @@
-use minifb::{Key, Window};
+use minifb::Window;
 
 use crate::audio::audio_handler::Audio;
 use crate::game::entities::EntityType::*;
@@ -9,11 +9,12 @@ use crate::game::entity_behaviour::{
     summoner_enemy_behaviour, weak_enemy_behaviour,
 };
 
+
 use crate::game::map::{Map, Point};
 use crate::game::movement::Mover;
 use crate::render::RendererData;
 use crate::render::sprites::Sprite;
-
+use crate::game::key_bindings::{Action,KeyBindings};
 use std::fmt;
 
 pub const ENTITY_DEFAULT_VIEW_HEIGHT: f64 = 15.0;
@@ -198,10 +199,11 @@ impl Entity {
         player_mover: &Mover,
         renderer_data: &RendererData,
         audio: &mut Audio,
+        key_bindings: &KeyBindings,
     ) -> Vec<EntityEvent> {
         //collect all Spawn events for gamestate
         let mut events: Vec<EntityEvent> = Vec::new();
-        if window.is_key_pressed(Key::L, minifb::KeyRepeat::No) {
+        if key_bindings.is_pressed(window, Action::LockEnemies) {
             self.movement_locked = !self.movement_locked;
         }
 

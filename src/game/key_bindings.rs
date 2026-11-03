@@ -2,10 +2,10 @@ use std::{fs, io};
 
 use minifb::{Key, Window};
 
-const KEY_BINDINGS_FILE: &str = "key_bindings.txt";
+const KEY_BINDINGS_PATH: &str = "key_bindings.txt";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[represent(usize)]
+#[repr(usize)]
 pub enum Action {
     MoveForward,
     MoveBackward,
@@ -25,11 +25,11 @@ pub enum Action {
     FireArrow,
     ToggleGodmode,
     LockEnemies,
-    ExitGame_or_Menu,
+    ExitGameorMenu,
 }
 
 impl Action {
-    pub const ALL: [self; 19]= [
+    pub const ALL: [Self; 19]= [
         Self::MoveForward,
         Self::MoveBackward,
         Self::MoveLeft,
@@ -48,7 +48,7 @@ impl Action {
         Self::FireArrow,
         Self::ToggleGodmode,
         Self::LockEnemies,
-        Self::ExitGame_or_Menu,
+        Self::ExitGameorMenu,
     ];
     pub fn label(self) -> &'static str {
         match self {
@@ -70,7 +70,7 @@ impl Action {
             Self::FireArrow => "Fire Arrow",
             Self::ToggleGodmode => "Toggle Godmode",
             Self::LockEnemies => "Lock Enemies",
-            Self::ExitGame_or_Menu => "Exit Game or Menu",
+            Self::ExitGameorMenu => "Exit Game or Menu",
         }
     }
     fn config_name(self) -> &'static str {
@@ -93,11 +93,13 @@ impl Action {
             Self::FireArrow => "fire_arrow",
             Self::ToggleGodmode => "toggle_godmode",
             Self::LockEnemies => "lock_enemies",
-            Self::ExitGame_or_Menu => "exit_game_or_menu",
+            Self::ExitGameorMenu => "exit_game_or_menu",
         }
     }
-    fn from_config_name(name:&str) -> Option<Self> {
-        Self::ALL.iter().find(|&&action| action.config_name() == name)
+    fn from_config_name(name: &str) -> Option<Self> {
+        Self::ALL
+            .into_iter()
+            .find(|action| action.config_name() == name)
     }
 }
 
@@ -110,7 +112,7 @@ pub struct KeyBindings {
 impl KeyBindings {
     pub fn load() -> Self {
         let mut bindings = Self::default();
-        match fs::read_to_string(KEY_BINDINGS_FILE) {
+        match fs::read_to_string(KEY_BINDINGS_PATH) {
             Ok (contents) => {
                 for (line_number, line) in contents.lines().enumerate() {
                     let Some((action_name, key_name)) = line.split_once('=') else {
@@ -121,7 +123,7 @@ impl KeyBindings {
                         continue;
                     };
                     let action = Action::from_config_name(action_name);
-                    let key = ALL_KEYS.iter().copied.find(|key| format!("{key:?}") == key_name);
+                    let key = ALL_KEYS.iter().copied().find(|key| format!("{key:?}") == key_name);
                     match (action, key) {
                         (Some(action), Some(key)) => bindings.set (action, key), _ => eprintln!(
                             "Invalid action or key in key bindings file at line {KEY_BINDINGS_PATH}: {}",
@@ -142,15 +144,15 @@ impl KeyBindings {
     pub fn set (&mut self, action: Action, key: Key) {
         self.keys[action as usize] = key;
     }
-    pub fn is_down(&self, action: Action, window: &Window) -> bool {
+    pub fn is_down(&self, window: &Window, action: Action) -> bool {
         window.is_key_down(self.get(action))
     }
-    pub fn is_pressed(&self, action: Action, window: &Window) -> bool {
+    pub fn is_pressed(&self, window: &Window, action: Action) -> bool {
         window.is_key_pressed(self.get(action), minifb::KeyRepeat::No)
     }
     pub fn save(&self) -> io::Result <()> {
-        let contents = Action::ALL.iter().map(|action| format!("{}={:?}", action.config_name(), self.get(action))).collect::<Vec<_>>().join("\n");
-        fs::write(KEY_BINDINGS_FILE, contents)
+        let contents = Action::ALL.iter().map(|action| format!("{}={:?}", action.config_name(), self.get(*action))).collect::<Vec<_>>().join("\n");
+        fs::write(KEY_BINDINGS_PATH, contents)
     }
 }
 
@@ -185,7 +187,7 @@ impl Default for KeyBindings {
 }
 
 
-const ALL_KEYS: &[Keys] = &[
+const ALL_KEYS: &[Key] = &[
     Key::Key0,
     Key::Key1,
     Key::Key2,

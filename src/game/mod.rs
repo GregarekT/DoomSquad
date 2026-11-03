@@ -4,6 +4,7 @@ pub mod entity_behaviour;
 pub mod gamestate;
 pub mod generate_entities;
 pub mod interactables;
+pub mod key_bindings;
 pub mod map;
 pub mod map_grid;
 pub mod movement;

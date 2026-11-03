@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 } else if game.player.hp <= 0.0 {
                     app_state = AppState::GameOver;
                 } else {
-                    game.update(&window, &renderer_data, &mut audio);
+                    game.update(&window, &renderer_data, &mut audio, &menu.key_bindings);
                     render::draw_screen(&mut buffer, &renderer_data, &game);
 
                     frame_count += 1;
@@ -134,15 +134,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             AppState::KeyBindings => {
                 window.set_cursor_visibility(true);
 
-                if escape_clicked {
-                    app_state = AppState::StartScreen;
-                } else {
-                    app_state = menu.update_and_draw_key_bindings(
-                        &mut window, 
-                        &mut buffer,
-                        
-                    );
-                }
+                app_state = menu.update_and_draw_key_bindings(
+                    &mut window,
+                    &mut buffer,
+                );
             }
         }
 
