@@ -15,5 +15,5 @@ toggle_aim=E
 fire_bullet=RightCtrl
 fire_arrow=RightShift
 toggle_godmode=G
-lock_enemies=M
+lock_enemies=L
 exit_game_or_menu=Escape
