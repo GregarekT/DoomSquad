@@ -20,7 +20,7 @@ use crate::{
     game::{map::Point, movement::Mover},
     render::RendererData,
 };
-use minifb::{Key, MouseButton, MouseMode, Window};
+use minifb::{MouseButton, MouseMode, Window};
 use std::f64::consts::PI;
 
 const ROTATION_SPEED_MOUSE: f64 = 2.0;
@@ -339,12 +339,12 @@ impl Player {
         }
 
         //slowdown movespeed if not sprinting and sliding anymore
-        if key_bindings.is_down(window, Action::Sprint) && !self.godmode {
+        if !key_bindings.is_down(window, Action::Sprint) && !self.godmode {
             self.move_speed = MOVE_SPEED;
         }
 
         //implementing Sprint that gradually increases movement speed
-        if window.is_key_down(Key::LeftShift) && !self.godmode {
+        if key_bindings.is_down(window, Action::Sprint) && !self.godmode {
             if self.move_speed < SPRINT_SPEED - 0.1 {
                 self.move_speed += 0.1;
             }
