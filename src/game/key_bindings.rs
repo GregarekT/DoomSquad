@@ -24,10 +24,12 @@ pub enum Action {
     FireBullet,
     FireArrow,
     ToggleGodmode,
+    LockEnemies,
+    ExitGame_or_Menu,
 }
 
 impl Action {
-    pub const ALL: [self; 17] = [
+    pub const ALL: [self; 19]= [
         Self::MoveForward,
         Self::MoveBackward,
         Self::MoveLeft,
@@ -45,6 +47,8 @@ impl Action {
         Self::FireBullet,
         Self::FireArrow,
         Self::ToggleGodmode,
+        Self::LockEnemies,
+        Self::ExitGame_or_Menu,
     ];
     pub fn label(self) -> &'static str {
         match self {
@@ -65,6 +69,8 @@ impl Action {
             Self::FireBullet => "Fire Bullet",
             Self::FireArrow => "Fire Arrow",
             Self::ToggleGodmode => "Toggle Godmode",
+            Self::LockEnemies => "Lock Enemies",
+            Self::ExitGame_or_Menu => "Exit Game or Menu",
         }
     }
     fn config_name(self) -> &'static str {
@@ -86,6 +92,8 @@ impl Action {
             Self::FireBullet => "fire_bullet",
             Self::FireArrow => "fire_arrow",
             Self::ToggleGodmode => "toggle_godmode",
+            Self::LockEnemies => "lock_enemies",
+            Self::ExitGame_or_Menu => "exit_game_or_menu",
         }
     }
     fn from_config_name(name:&str) -> Option<Self> {
@@ -148,7 +156,33 @@ impl KeyBindings {
 
 
 // default key bindings for each action
-impl Default for KeyBindings {}
+impl Default for KeyBindings {
+    fn default() -> Self {
+        Self {
+            keys: [
+                Key::W,
+                Key::S,
+                Key::A,
+                Key::D,
+                Key::Left,
+                Key::Right,
+                Key::Up,
+                Key::Down,
+                Key::Space,
+                Key::R,
+                Key::LeftShift,
+                Key::C,
+                Key::F,
+                Key::E,
+                Key::RightCtrl,
+                Key::RightShift,
+                Key::G,
+                Key::L,
+                Key::Escape,
+            ],
+        }
+    }
+}
 
 
 const ALL_KEYS: &[Keys] = &[
