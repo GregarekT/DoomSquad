@@ -93,6 +93,64 @@ impl Action {
     }
 }
 
+
+#[derive(Clone)]
+pub struct KeyBindings {
+    keys: [Key; Action::ALL.len()],
+}
+
+impl KeyBindings {
+    pub fn load() -> Self {
+        let mut bindings = Self::default();
+        match fs::read_to_string(KEY_BINDINGS_FILE) {
+            Ok (contents) => {
+                for (line_number, line) in contents.lines().enumerate() {
+                    let Some((action_name, key_name)) = line.split_once('=') else {
+                        eprintln!(
+                            "Invalid line format in key bindings file at line {KEY_BINDINGS_PATH}: {}",
+                            line_number + 1
+                        );
+                        continue;
+                    };
+                    let action = Action::from_config_name(action_name);
+                    let key = ALL_KEYS.iter().copied.find(|key| format!("{key:?}") == key_name);
+                    match (action, key) {
+                        (Some(action), Some(key)) => bindings.set (action, key), _ => eprintln!(
+                            "Invalid action or key in key bindings file at line {KEY_BINDINGS_PATH}: {}",
+                            line_number + 1
+                        ),
+                        
+                    }
+                }
+            }
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => eprintln!("Failed to read {KEY_BINDINGS_PATH}: {error}"),
+        }
+        bindings
+    }
+    pub fn get (&self, action: Action) -> Key {
+        self.keys[action as usize]
+    }
+    pub fn set (&mut self, action: Action, key: Key) {
+        self.keys[action as usize] = key;
+    }
+    pub fn is_down(&self, action: Action, window: &Window) -> bool {
+        window.is_key_down(self.get(action))
+    }
+    pub fn is_pressed(&self, action: Action, window: &Window) -> bool {
+        window.is_key_pressed(self.get(action), minifb::KeyRepeat::No)
+    }
+    pub fn save(&self) -> io::Result <()> {
+        let contents = Action::ALL.iter().map(|action| format!("{}={:?}", action.config_name(), self.get(action))).collect::<Vec<_>>().join("\n");
+        fs::write(KEY_BINDINGS_FILE, contents)
+    }
+}
+
+
+// default key bindings for each action
+impl Default for KeyBindings {}
+
+
 const ALL_KEYS: &[Keys] = &[
     Key::Key0,
     Key::Key1,
