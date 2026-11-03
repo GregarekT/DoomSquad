@@ -31,6 +31,7 @@ pub enum AppState {
     GameOver,
     GamePaused,
     Quit,
+    KeyBindings,
 }
 
 /// Simple layout container for button definitions.
@@ -73,6 +74,7 @@ impl Menu {
         let click1 = window.is_key_pressed(Key::Key1, KeyRepeat::No);
         let click2 = window.is_key_pressed(Key::Key2, KeyRepeat::No);
         let click3 = window.is_key_pressed(Key::Key3, KeyRepeat::No);
+        let click4 = window.is_key_pressed(Key::Key4, KeyRepeat::No);
 
         // Render titles
         Self::draw_text_centered(
@@ -130,12 +132,12 @@ impl Menu {
             h: 50,
             text: "[ESC] QUIT GAME".to_string(),
         };
-         let btn_KeyBindings = ButtonDef {
+         let btn_key_bindings = ButtonDef {
             x: 230,
             y: 380,
             w: 340,
             h: 50,
-            text: "[3] Key Bindings".to_string(),
+            text: "[4] KEY BINDINGS".to_string(),
         };
 
 
@@ -166,7 +168,8 @@ impl Menu {
         if self.draw_flat_button(buffer, &btn_quit, mx, my) && clicked {
             return AppState::Quit;
         }
-        if self.draw_flat_button(buffer, &btn_KeyBindings, mx, my) && clicked || click3 {
+        if self.draw_flat_button(buffer, &btn_key_bindings, mx, my) && clicked || click4 {
+            return AppState::KeyBindings;
             //Open the key bindings menu or perform related action (this is a placeholder for future implementation) via Config file 
         }
 
@@ -305,6 +308,43 @@ impl Menu {
         }
 
         AppState::GamePaused
+    }
+    pub fn update_and_draw_key_bindings(
+         &mut self,
+         window: &mut Window,
+         buffer: &mut [u32],
+
+    ) -> AppState {
+        buffer.fill(COL_BG_MAIN);
+
+        let (mx, my, clicked) = self.get_mouse_state(window);
+       
+        
+        Self::draw_text_centered(
+            buffer,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            "KEY BINDINGS",
+            50,
+            6,
+            COL_TITLE_RED,
+        );
+
+        
+        
+        let btn_back = ButtonDef {
+            x: 230,
+            y: 380,
+            w: 340,
+            h: 50,
+            text: "[ESC] BACK TO MENU".to_string(),
+        };
+
+        if self.draw_flat_button(buffer, &btn_back, mx, my) && clicked {
+            return AppState::StartScreen;
+        }
+
+        AppState::KeyBindings
     }
 
     /// Fetches mouse coordinates and performs edge detection (debouncing) for left-clicks.
