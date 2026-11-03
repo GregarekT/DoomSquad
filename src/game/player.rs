@@ -334,12 +334,12 @@ impl Player {
             self.mover.foot_level += FLY_UP_DOWN_SPEED;
         }
 
-        if !key_bindings.is_down(window, Action::Sprint) && !self.is_jumping && !self.is_sliding {
+        if !key_bindings.is_down(window, Action::Sprint) && self.godmode && !self.is_jumping && !self.is_sliding {
             self.mover.foot_level -= FLY_UP_DOWN_SPEED;
         }
 
         //slowdown movespeed if not sprinting and sliding anymore
-        if !key_bindings.is_down(window, Action::Sprint) && !self.godmode {
+        if !key_bindings.is_down(window, Action::Sprint) && !self.godmode && !self.is_sliding {
             self.move_speed = MOVE_SPEED;
         }
 
@@ -376,14 +376,11 @@ impl Player {
 
         //during slide speed decreases
         if self.is_sliding {
-            self.move_speed -= 0.2;
+            self.move_speed = (self.move_speed - 0.2).max(MOVE_SPEED);
         }
 
-        //ending slide (either cause not pressed or slowed down)
-        #[allow(clippy::nonminimal_bool)]
-        if (!key_bindings.is_down(window, Action::Crouch)&& self.is_sliding)
-            || ((self.move_speed <= SPRINT_SPEED) && self.is_sliding)
-        {
+        //end crouching when the key is released
+        if !key_bindings.is_down(window, Action::Crouch) && self.is_sliding {
             self.is_sliding = false;
             self.last_input = No;
             self.slide_cooldown = SLIDE_COOLDOWN_TIME;
@@ -405,13 +402,16 @@ impl Player {
             self.jumping_allowed_timer = 0
         };
 
+        let jump_pressed = key_bindings.is_pressed(window, Action::Jump);
+        let rocket_jump_pressed = key_bindings.is_pressed(window, Action::RocketJump);
+
         //jumping init
-        if (key_bindings.is_pressed(window, Action::Jump)
+        if (jump_pressed
             && ((!self.is_jumping
                 && (self.mover.foot_level - self.mover.floor_level).abs()
                     < DISTANCE_TO_FLOOR_WHILE_ALLOWED_JUMPING)
                 || self.jumping_allowed))
-            || key_bindings.is_pressed(window, Action::RocketJump)
+            || rocket_jump_pressed
         {
             self.gravity = GRAVITY_CONST;
             self.is_jumping = true;
@@ -420,9 +420,11 @@ impl Player {
                 self.mover.foot_level += CROUCH_HEIGHT_DIFF;
                 self.slide_cooldown = SLIDE_COOLDOWN_TIME;
                 self.move_speed += 3.0;
+
             }
+
             //normal jump init
-            if key_bindings.is_pressed(window, Action::Jump) {
+            if jump_pressed {
                 audio.play_sfx("jump", 1.0);
 
                 self.move_speed += self.move_speed * JUMP_SPEED_BOOST_MULTIPLICATOR;
@@ -432,7 +434,7 @@ impl Player {
             }
 
             //rocketlauncher
-            if key_bindings.is_pressed(window, Action::RocketJump) && (self.rocketlauncher_cooldown == 0) {
+            if rocket_jump_pressed && (self.rocketlauncher_cooldown == 0) {
                 audio.play_sfx("rocketlauncher", 1.0);
 
                 self.using_rocketlauncher = true;
