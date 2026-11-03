@@ -7,9 +7,10 @@ mod parser;
 mod render;
 
 use crate::audio::audio_handler::Audio;
+use crate::game::key_bindings::Action;
 use crate::menu::menu_handler::{AppState, Menu};
 use crate::render::{RendererData, render_init};
-use minifb::{Key, KeyRepeat, Window, WindowOptions};
+use minifb::{Window, WindowOptions};
 use std::f64::consts::PI;
 use std::time::Instant;
 
@@ -62,13 +63,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app_state = AppState::StartScreen;
 
     while window.is_open() {
-        let escape_clicked = window.is_key_pressed(Key::Escape, KeyRepeat::No);
+        let exit_action_pressed = menu.key_bindings.is_pressed(&window, Action::ExitGameorMenu);
 
         match app_state {
             AppState::StartScreen => {
                 window.set_cursor_visibility(true);
 
-                if escape_clicked {
+                if exit_action_pressed {
                     break;
                 } else {
                     app_state = menu.update_and_draw_start_menu(
@@ -84,7 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             AppState::Playing => {
                 window.set_cursor_visibility(false);
 
-                if escape_clicked {
+                if exit_action_pressed{
                     app_state = AppState::GamePaused;
                 } else if game.player.hp <= 0.0 {
                     app_state = AppState::GameOver;
@@ -106,7 +107,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             AppState::GamePaused => {
                 window.set_cursor_visibility(true);
 
-                if escape_clicked {
+                if exit_action_pressed{
                     app_state = AppState::StartScreen;
                 } else {
                     app_state = menu.update_and_draw_game_paused(
@@ -121,7 +122,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             AppState::GameOver => {
                 window.set_cursor_visibility(true);
 
-                if escape_clicked {
+                if exit_action_pressed{
                     app_state = AppState::StartScreen;
                 } else {
                     app_state = menu.update_and_draw_game_over(&mut window, &mut buffer, &mut game);

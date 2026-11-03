@@ -332,7 +332,7 @@ impl Menu {
                 self.capture_action = None;
 
             }
-        } else if window.is_key_pressed(Key::Escape, KeyRepeat::No) {
+        } else if self.key_bindings.is_pressed(window, Action::ExitGameorMenu) {
                 return AppState::StartScreen;
         }
        
